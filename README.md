@@ -1,4 +1,4 @@
-# Couchbcase Storage Plugin
+# ArangoDB Storage Plugin
 
 ArangoDB Storage Plugin for the Reekoh IoT Platform.
 
