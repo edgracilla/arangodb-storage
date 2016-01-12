@@ -8,13 +8,13 @@
 	"label": "Host",
 	"type": "String",
 	"required": true,
-	"help": "Host(s) for the Arango database."
+	"help": "Host(s) for the ArangoDB database."
   },
   "port": {
 	"label": "Port",
 	"type": "Number",
 	"required": false,
-	"help": "(Optional) Port for the Cassandra database."
+	"help": "(Optional) Port for the ArangoDB database."
   },
   "connection_type": {
 	"label": "Connection Type",
