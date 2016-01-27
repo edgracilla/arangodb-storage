@@ -22,7 +22,7 @@
     "gulp-json-lint": "^0.1.0",
     "gulp-mocha": "^2.2.0",
     "gulp-plumber": "^1.0.1",
-    "mocha": "^2.3.4"
+    "mocha": "^2.3.4",
     "should": "^8.0.2"
   },
   "license": "LGPL-3.0"
