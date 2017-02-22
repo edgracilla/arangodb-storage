@@ -1,14 +1,18 @@
 /* global describe, it, before, after */
 'use strict'
 
-const cp = require('child_process')
-const should = require('should')
-const moment = require('moment')
 const amqp = require('amqplib')
+const moment = require('moment')
+const should = require('should')
+const cp = require('child_process')
 
-let _storage = null
+const INPUT_PIPE = 'demo.pipe.storage'
+const BROKER = 'amqp://guest:guest@127.0.0.1/'
+const ID = new Date().getTime().toString()
+
+let _app = null
+let _conn = null
 let _channel = null
-let _conn = {}
 
 let conf = {
   host: 'localhost',
@@ -20,8 +24,6 @@ let conf = {
   collection: 'reekoh_collection',
   collection_type: 'collection'
 }
-
-const ID = new Date().getTime().toString()
 
 let record = {
   _key: ID,
@@ -35,14 +37,13 @@ let record = {
 }
 
 describe('Storage', function () {
-  this.slow(5000)
 
   before('init', () => {
-    process.env.INPUT_PIPE = 'demo.pipe.storage'
-    process.env.BROKER = 'amqp://guest:guest@127.0.0.1/'
+    process.env.BROKER = BROKER
+    process.env.INPUT_PIPE = INPUT_PIPE
     process.env.CONFIG = JSON.stringify(conf)
 
-    amqp.connect(process.env.BROKER).then((conn) => {
+    amqp.connect(BROKER).then((conn) => {
       _conn = conn
       return conn.createChannel()
     }).then((channel) => {
@@ -56,19 +57,19 @@ describe('Storage', function () {
     this.timeout(7000)
 
     _conn.close()
-    _storage.send({
+    _app.send({
       type: 'close'
     })
 
     setTimeout(function () {
-      _storage.kill('SIGKILL')
+      _app.kill('SIGKILL')
       done()
     }, 5000)
   })
 
   describe('#spawn', function () {
     it('should spawn a child process', function () {
-      should.ok(_storage = cp.fork(process.cwd()), 'Child process not spawned.')
+      should.ok(_app = cp.fork(process.cwd()), 'Child process not spawned.')
     })
   })
 
@@ -76,7 +77,7 @@ describe('Storage', function () {
     it('should notify the parent process when ready within 5 seconds', function (done) {
       this.timeout(5000)
 
-      _storage.on('message', function (message) {
+      _app.on('message', function (message) {
         if (message.type === 'ready') {
           done()
         }
@@ -87,9 +88,9 @@ describe('Storage', function () {
   describe('#data', function () {
     it('should process the data', function (done) {
       this.timeout(8000)
-      _channel.sendToQueue(process.env.INPUT_PIPE, new Buffer(JSON.stringify(record)))
+      _channel.sendToQueue(INPUT_PIPE, new Buffer(JSON.stringify(record)))
 
-      _storage.on('message', (msg) => {
+      _app.on('message', (msg) => {
         if (msg.type === 'processed') done()
       })
     })
@@ -105,11 +106,9 @@ describe('Storage', function () {
 
       db.useDatabase(conf.database)
 
-      if (conf.collection_type === 'collection') {
-        collection = db.collection(conf.collection)
-      } else {
-        collection = db.edgeCollection(conf.collection)
-      }
+      collection = conf.collection_type === 'collection'
+        ? db.collection(conf.collection)
+        : db.edgeCollection(conf.collection)
 
       collection.document(ID, function (err, result) {
         if (err) return console.log(err)

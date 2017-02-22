@@ -1,11 +1,10 @@
 'use strict'
 
 const reekoh = require('reekoh')
-const config = require('./config.js')
 const _plugin = new reekoh.plugins.Storage()
 
-const isPlainObject = require('lodash.isplainobject')
 const async = require('async')
+const isPlainObject = require('lodash.isplainobject')
 
 let collection = null
 
@@ -44,11 +43,7 @@ _plugin.on('data', (data) => {
 })
 
 _plugin.once('ready', () => {
-  let err = config.validate(_plugin.config)
-  if (err) return console.error('Config Validation Error: \n', err)
-
   let options = _plugin.config
-
   let Database = require('arangojs').Database
   let url = `${options.host}:${options.port}`
   let auth = `${options.user}:${options.password}`
@@ -57,11 +52,9 @@ _plugin.once('ready', () => {
 
   db.useDatabase(options.database)
 
-  if (options.collection_type === 'collection') {
-    collection = db.collection(options.collection)
-  } else {
-    collection = db.edgeCollection(options.collection)
-  }
+  collection = options.collection_type === 'collection'
+    ? db.collection(options.collection)
+    : db.edgeCollection(options.collection)
 
   _plugin.log('ArangoDB has been initialized.')
   process.send({ type: 'ready' })

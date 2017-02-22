@@ -11,7 +11,7 @@
 	"required": true,
 	"help": "Port for the ArangoDB database."
   },
-  "connection_type": {
+  "connectionType": {
 	"label": "Connection Type",
 	"type": "String",
 	"required": true,
@@ -45,7 +45,7 @@
 	"required": true,
 	"help": "Collection/Edge Name where the data will be saved."
   },
-  "collection_type": {
+  "collectionType": {
 	"label": "Collection Type",
 	"type": "String",
 	"required": true,
