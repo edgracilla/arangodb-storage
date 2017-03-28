@@ -1,0 +1,75 @@
+apiVersion: 1.0.0
+kind: Plugin
+metadata:
+  name: ArangoDB Storage
+  description: ArangoDB storage plugin for Reekoh IoT Platform.
+  documentation: README.md
+  icon: asset/icon/reekoh200x200.png
+  signupLink: https://myservice.com/signup # ??
+  type: Storage
+  price: 0
+  tags:
+    - storage
+    - arango
+    - arangodb
+  config:
+    host:
+      label: Host
+      type: String
+      maxLength: 1000
+      required: true
+      help: "Host(s) for the ArangoDB database."
+    port:
+      label: Port
+      type: Number
+      required: true
+      min: 0
+      max: 65535
+      help: "Port for the ArangoDB database."
+    connectionType:
+      label: Connection Type
+      type: String
+      maxLength: 1000
+      required: true
+      enum:
+        - http
+        - https
+      help: "Type of connection to be used."
+    user:
+      label: user
+      type: String
+      maxLength: 1000
+      required: true
+      help: "User for authentication."
+    password:
+      label: Password
+      type: Password
+      maxLength: 1000
+      required: false
+      help: "(Optional) Password for authentication."
+    database:
+      label: Database Name
+      type: String
+      maxLength: 1000
+      required: true
+      help: "Database Name where the Collection is located."
+    collection:
+      label: Collection Name
+      type: String
+      maxLength: 1000
+      required: true
+      help: "Collection/Edge Name where the data will be saved."
+    collectionType:
+      label: Collection Type
+      type: String
+      maxLength: 1000
+      required: true
+      enum:
+        - collection
+        - edge
+      help: "Type of collection where data will be inserted."
+
+  release:
+    version: 1.0.0
+    notes: path/to/RELEASENOTESv1.0.0.md # ??
+    image: path/to/docker/image # ??

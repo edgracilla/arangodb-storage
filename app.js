@@ -1,7 +1,7 @@
 'use strict'
 
 const reekoh = require('reekoh')
-const _plugin = new reekoh.plugins.Storage()
+const plugin = new reekoh.plugins.Storage()
 
 const async = require('async')
 const isPlainObject = require('lodash.isplainobject')
@@ -11,7 +11,7 @@ let collection = null
 let sendData = (data, callback) => {
   collection.save(data, (error, res) => {
     if (!error) {
-      _plugin.log(JSON.stringify({
+      plugin.log(JSON.stringify({
         title: 'Record Successfully inserted to ArangoDB.',
         data: data,
         key: res._key
@@ -22,28 +22,28 @@ let sendData = (data, callback) => {
   })
 }
 
-_plugin.on('data', (data) => {
+plugin.on('data', (data) => {
   if (isPlainObject(data)) {
     sendData(data, (error) => {
       if (error) {
         console.log(error)
-        return _plugin.logException(error)
+        return plugin.logException(error)
       }
-      process.send({ type: 'processed' })
+      plugin.emit('processed')
     })
   } else if (Array.isArray(data)) {
     async.each(data, (datum, done) => {
       sendData(datum, done)
     }, (error) => {
-      if (error) _plugin.logException(error)
+      if (error) plugin.logException(error)
     })
   } else {
-    _plugin.logException(new Error(`Invalid data received. Data must be a valid Array/JSON Object or a collection of objects. Data: ${data}`))
+    plugin.logException(new Error(`Invalid data received. Data must be a valid Array/JSON Object or a collection of objects. Data: ${data}`))
   }
 })
 
-_plugin.once('ready', () => {
-  let options = _plugin.config
+plugin.once('ready', () => {
+  let options = plugin.config
   let Database = require('arangojs').Database
   let url = `${options.host}:${options.port}`
   let auth = `${options.user}:${options.password}`
@@ -56,6 +56,9 @@ _plugin.once('ready', () => {
     ? db.collection(options.collection)
     : db.edgeCollection(options.collection)
 
-  _plugin.log('ArangoDB has been initialized.')
-  process.send({ type: 'ready' })
+  plugin.log('ArangoDB has been initialized.')
+  plugin.emit('init')
 })
+
+module.exports = plugin
+
