@@ -82,9 +82,11 @@ describe('Storage', function () {
 
       db.useDatabase(conf.database)
 
-      collection = conf.collection_type === 'collection'
-        ? db.collection(conf.collection)
-        : db.edgeCollection(conf.collection)
+      if (conf.collection_type === 'collection') {
+        collection = db.collection(conf.collection)
+      } else {
+        collection = db.edgeCollection(conf.collection)
+      }
 
       collection.document(ID, function (err, result) {
         if (err) return console.log(err)

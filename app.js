@@ -26,7 +26,6 @@ plugin.on('data', (data) => {
   if (isPlainObject(data)) {
     sendData(data, (error) => {
       if (error) {
-        console.log(error)
         return plugin.logException(error)
       }
       plugin.emit('processed')
@@ -52,9 +51,11 @@ plugin.once('ready', () => {
 
   db.useDatabase(options.database)
 
-  collection = options.collection_type === 'collection'
-    ? db.collection(options.collection)
-    : db.edgeCollection(options.collection)
+  if (options.collection_type === 'collection') {
+    collection = db.collection(options.collection)
+  } else {
+    collection = db.edgeCollection(options.collection)
+  }
 
   plugin.log('ArangoDB has been initialized.')
   plugin.emit('init')
